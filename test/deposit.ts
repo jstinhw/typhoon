@@ -86,7 +86,7 @@ const proveCommit = async () => {
     random: random_arr
   }
 
-  const circuit = await wasm_tester(path.join(__dirname, "..", "circuits", "commitment.circom"));
+  const circuit = await wasm_tester(path.join(__dirname, "..", "circuits", "deposit.circom"));
   const witness = await circuit.calculateWitness(input)
   await circuit.checkConstraints(witness);
 }

@@ -70,7 +70,7 @@ describe('Circuit Commitment', function(){
       babyJub = await buildBabyjub();
         F = babyJub.F;
         pedersen = await buildPedersenHash();
-        circuit = await wasm_tester(path.join(__dirname, "..", "circuits", "commitment.circom"));
+        circuit = await wasm_tester(path.join(__dirname, "..", "circuits", "deposit.circom"));
     }))
 
     it('should create a valid commitment', async () => {

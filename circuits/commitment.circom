@@ -28,8 +28,8 @@ template CommitmentHasher() {
 
 template Commitment () {
   signal input senderPubKey[2][4];
-  signal input commitment;
   signal input random[4];
+  signal output commitment;
   
   component randomPub = ECDSAPrivToPub(64, 4);
   component nullifierGenerator = Secp256k1ScalarMult(64, 4);
@@ -72,7 +72,5 @@ template Commitment () {
   commitmentHasher.nullifier <== nullifierAddr.address;
   commitmentHasher.garbler <== garblerAddr.address;
   
-  commitmentHasher.commitment === commitment;
+  commitment <== commitmentHasher.commitment;
 }
-
-component main {public [senderPubKey, commitment]} = Commitment();
