@@ -7,13 +7,17 @@ template Deposit() {
   signal input random[4];
   signal input commitment;
 
-  component commitmentChecker = Commitment();
+  component stealth = Stealth();
+  component commitmentChecker = CommitmentHasher();
   for (var j = 0; j < 4; j++) {
     for (var i = 0; i < 2; i++) {
-      commitmentChecker.senderPubKey[i][j] <== senderPubKey[i][j];
+      stealth.senderPubKey[i][j] <== senderPubKey[i][j];
     }
-    commitmentChecker.random[j] <== random[j];
+    stealth.random[j] <== random[j];
   }
+  commitmentChecker.nullifier <== stealth.nullifier;
+  commitmentChecker.garbler <== stealth.garbler;
+
   commitment === commitmentChecker.commitment;
 }
 
