@@ -28,7 +28,7 @@ function bigint_to_array(n: number, k: number, x: bigint) {
     return ret;
 }
 
-const getCommitment = async (pubKey: string, random: Uint8Array) => {
+export const getCommitment = async (pubKey: string, random: Uint8Array) => {
   const randomNum = hexlify(random)
   const randomPub = secp.getPublicKey(random, false);
   const pub0 = secp256k1.ProjectivePoint.fromHex(pubKey.substring(2))
@@ -37,8 +37,8 @@ const getCommitment = async (pubKey: string, random: Uint8Array) => {
   const nullifier = pub0.multiply(BigInt(randomNum));
   const garblerAddress = computeAddress("0x" + garbler.toHex())
   const nullfierAddress = computeAddress("0x" + nullifier.toHex())
-  console.log("garblerAddress", garblerAddress)
-  console.log("nullfierAddress", nullfierAddress)
+  // console.log("garblerAddress", garblerAddress)
+  // console.log("nullfierAddress", nullfierAddress)
 
   const babyJub = await buildBabyjub();
   const Fr = babyJub.F;
@@ -86,7 +86,7 @@ const proveCommit = async () => {
     random: random_arr
   }
 
-  const circuit = await wasm_tester(path.join(__dirname, "..", "circuits", "commitment.circom"));
+  const circuit = await wasm_tester(path.join(__dirname, "..", "circuits", "deposit.circom"));
   const witness = await circuit.calculateWitness(input)
   await circuit.checkConstraints(witness);
 }
