@@ -37,6 +37,7 @@
     "viem": "^1.16.6"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
     "circom_tester": "^0.0.20",
     "circomlibjs": "^0.1.7",
     "ethers": "^6.8.0",

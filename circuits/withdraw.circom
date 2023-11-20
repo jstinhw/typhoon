@@ -13,6 +13,7 @@ template Withdraw (levels) {
   signal input nullfierHash;
   signal input blocked;
   signal input root;
+  signal input recipient;
   signal input pathElements[levels];
   signal input pathIndices[levels];
 
@@ -69,7 +70,10 @@ template Withdraw (levels) {
       tree.pathElements[i] <== pathElements[i];
       tree.pathIndices[i] <== pathIndices[i];
   }
+
+  // recipient tamper protection
+  signal recipientSquare;
+  recipientSquare <== recipient * recipient;
 }
 
-// component main {public [root, nullfierHash, blocked]} = Withdraw(20);
-component main {public [nullfierHash, blocked]} = Withdraw(20);
+component main {public [root, nullfierHash, blocked, recipient]} = Withdraw(20);
