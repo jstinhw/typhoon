@@ -58,14 +58,9 @@ template Withdraw (levels) {
   // nullifier is derived from stealth
   nullifier === stealth.nullifier;
 
-  // commitment is derived from pubkey
-  component commitmentChecker = CommitmentHasher();
-  commitmentChecker.nullifier <== stealth.nullifier;
-  commitmentChecker.garbler <== stealth.garbler;
-
   // open merkle tree
   component tree = MerkleTreeChecker(levels);
-  tree.leaf <== commitmentChecker.commitment;
+  tree.leaf <== stealth.commitment;
   tree.root <== root;
   for (var i = 0; i < levels; i++) {
       tree.pathElements[i] <== pathElements[i];
@@ -77,4 +72,4 @@ template Withdraw (levels) {
   recipientSquare <== recipient * recipient;
 }
 
-component main {public [root, blocked, nullifier, recipient]} = Withdraw(16);
+component main {public [root, blocked, nullifier, recipient]} = Withdraw(20);

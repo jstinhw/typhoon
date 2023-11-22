@@ -30,8 +30,6 @@ export const getProof = async (pubKey: string, random: Uint8Array) => {
   const pub1 = secp256k1.ProjectivePoint.fromHex(randomPub)
   const garbler = pub0.add(pub1)
   const nullifier = pub0.multiply(BigInt(randomNum));
-  const garblerAddress = computeAddress("0x" + garbler.toHex())
-  const nullfierAddress = computeAddress("0x" + nullifier.toHex())
 
   const babyJub = await buildBabyjub();
   const Fr = babyJub.F;
@@ -44,14 +42,10 @@ export const getProof = async (pubKey: string, random: Uint8Array) => {
       [Fr.e("20265828622013100949498132415626198973119240347465898028410217039057588424236"),Fr.e("1160461593266035632937973507065134938065359936056410650153315956301179689506")]
   ];
 
-  // nullfierHash
-  const r = babyJub.mulPointEscalar(PBASE[0], BigInt(nullfierAddress));
-  const nullifierHash = Fr.toObject(r[0])
-
   // commitment
   const commimentPedersen = babyJub.addPoint(
-    babyJub.mulPointEscalar(PBASE[0], BigInt(nullfierAddress)),
-    babyJub.mulPointEscalar(PBASE[1], BigInt(garblerAddress))
+    babyJub.mulPointEscalar(PBASE[0], BigInt("0x" + nullifier.x.toString(16).slice(-60))),
+    babyJub.mulPointEscalar(PBASE[1], BigInt("0x" + garbler.x.toString(16).slice(-60)))
   );
   const commitment = Fr.toObject(commimentPedersen[0])
 
@@ -62,7 +56,7 @@ export const getProof = async (pubKey: string, random: Uint8Array) => {
   const pathRoot = tree.root();
 
   return {
-    nullfierHash: nullifierHash,
+    nullifier: BigInt("0x" + nullifier.x.toString(16).slice(-60)),
     root: pathRoot,
     pathElements: pathElements,
     pathIndices
@@ -94,11 +88,12 @@ const proveWithdraw = async () => {
       pub_y_arr
     ],
     random: random_arr,
-    nullfierHash: proof.nullfierHash,
+    nullifier: proof.nullifier,
     blocked: BigInt(blocked),
     root: proof.root,
     pathElements: proof.pathElements,
     pathIndices: proof.pathIndices,
+    recipient: owner.address
   }
   const circuit = await wasm_tester(path.join(__dirname, "..", "circuits", "withdraw.circom"));
   const witness = await circuit.calculateWitness(input)
