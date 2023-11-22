@@ -51,8 +51,8 @@ export const getCommitment = async (pubKey: string, random: Uint8Array) => {
       [Fr.e("20265828622013100949498132415626198973119240347465898028410217039057588424236"),Fr.e("1160461593266035632937973507065134938065359936056410650153315956301179689506")]
   ];
   const r = babyJub.addPoint(
-    babyJub.mulPointEscalar(PBASE[0], BigInt(nullfierAddress)),
-    babyJub.mulPointEscalar(PBASE[1], BigInt(garblerAddress))
+    babyJub.mulPointEscalar(PBASE[0], BigInt("0x" + nullifier.x.toString(16).slice(-60))),
+    babyJub.mulPointEscalar(PBASE[1], BigInt("0x" + garbler.x.toString(16).slice(-60)))
   );
 
   return Fr.toObject(r[0])
