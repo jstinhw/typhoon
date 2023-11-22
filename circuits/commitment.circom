@@ -31,14 +31,15 @@ template Stealth () {
   signal input random[4];
   signal output nullifier;
   signal output garbler;
+  signal output randomPubKey[2][4];
   
   component randomPub = ECDSAPrivToPub(64, 4);
   component nullifierGenerator = Secp256k1ScalarMult(64, 4);
   component garblerGenerator = Secp256k1AddUnequal(64, 4);
   component nullifierFlatten = FlattenPubkey(64, 4);
   component garblerFlatten = FlattenPubkey(64, 4);
-  component nullifierAddr = PubkeyToAddress();
-  component garblerAddr = PubkeyToAddress();
+  component nullifierNum = Bits2Num(512);
+  component garblerNum = Bits2Num(512);
 
   for (var i = 0; i < 4; i++) {
     randomPub.privkey[i] <== random[i];
@@ -53,6 +54,7 @@ template Stealth () {
     for (var j = 0; j < 4; j++) {
       garblerGenerator.a[i][j] <== senderPubKey[i][j];
       garblerGenerator.b[i][j] <== randomPub.pubkey[i][j];
+      randomPubKey[i][j] <== randomPub.pubkey[i][j];
     }
   }
 
@@ -63,14 +65,13 @@ template Stealth () {
     garblerFlatten.chunkedPubkey[0][i] <== garblerGenerator.out[0][i];
     garblerFlatten.chunkedPubkey[1][i] <== garblerGenerator.out[1][i];
   }
-  // compute addresses
   for (var i = 0; i < 512; i++) {
-    nullifierAddr.pubkeyBits[i] <== nullifierFlatten.pubkeyBits[i];
-    garblerAddr.pubkeyBits[i] <== garblerFlatten.pubkeyBits[i];
+    nullifierNum.in[i] <== nullifierFlatten.pubkeyBits[i];
+    garblerNum.in[i] <== garblerFlatten.pubkeyBits[i];
   }
 
-  nullifier <== nullifierAddr.address;
-  garbler <== garblerAddr.address;
+  nullifier <== nullifierNum.out;
+  garbler <== garblerNum.out;
 }
 
 // template Commitment () {

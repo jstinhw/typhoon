@@ -10,8 +10,8 @@ include "../node_modules/circomlib/circuits/bitify.circom";
 template Withdraw (levels) {
   signal input senderPubKey[2][4];
   signal input random[4];
-  signal input nullfierHash;
   signal input blocked;
+  signal input nullifier;
   signal input root;
   signal input recipient;
   signal input pathElements[levels];
@@ -32,31 +32,32 @@ template Withdraw (levels) {
   bIszero.in <== (pub2Addr.address - blocked);
   bIszero.out === 0;
 
-  // random is not equal to blocked
-  component randomAddress = PrivKeyToAddr(64, 4);
-  component rIszero = IsZero();
-  for (var i = 0; i < 4; i++) {
-    randomAddress.privkey[i] <== random[i];
-  }
-  rIszero.in <== (randomAddress.addr - blocked);
-  rIszero.out === 0;
-
-  // nullifier hash
   component stealth = Stealth();
-  component nullifierBits = Num2Bits(250);
-  component nullifierHasher = Pedersen(250);
   for (var j = 0; j < 4; j++) {
     for (var i = 0; i < 2; i++) {
       stealth.senderPubKey[i][j] <== senderPubKey[i][j];
     }
     stealth.random[j] <== random[j];
   }
-  nullifierBits.in <== stealth.nullifier;
-  for (var i = 0; i < 250; i ++) {
-    nullifierHasher.in[i] <== nullifierBits.out[i];
+
+  // random is not equal to blocked
+  component randomFlatten = FlattenPubkey(64, 4);
+  component randompub2Addr = PubkeyToAddress();
+  component rIszero = IsZero();
+
+  for (var i = 0; i < 4; i++) {
+    randomFlatten.chunkedPubkey[0][i] <== stealth.randomPubKey[0][i];
+    randomFlatten.chunkedPubkey[1][i] <== stealth.randomPubKey[1][i];
   }
-  nullfierHash === nullifierHasher.out[0];
-  
+  for (var i = 0; i < 512; i++) {
+    randompub2Addr.pubkeyBits[i] <== randomFlatten.pubkeyBits[i];
+  }
+  rIszero.in <== (randompub2Addr.address - blocked);
+  rIszero.out === 0;
+
+  // nullifier is derived from stealth
+  nullifier === stealth.nullifier;
+
   // commitment is derived from pubkey
   component commitmentChecker = CommitmentHasher();
   commitmentChecker.nullifier <== stealth.nullifier;
@@ -76,4 +77,4 @@ template Withdraw (levels) {
   recipientSquare <== recipient * recipient;
 }
 
-component main {public [root, nullfierHash, blocked, recipient]} = Withdraw(20);
+component main {public [root, blocked, nullifier, recipient]} = Withdraw(16);
