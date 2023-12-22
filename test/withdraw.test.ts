@@ -46,9 +46,10 @@ describe('Withdraw', function(){
         pub_y_arr
       ],
       random: random_arr,
-      nullfierHash: proof.nullfierHash,
+      nullifier: proof.nullifier,
       blocked: BigInt(blocked),
       root: proof.root,
+      recipient: owner.address,
       pathElements: proof.pathElements,
       pathIndices: proof.pathIndices,
     }
